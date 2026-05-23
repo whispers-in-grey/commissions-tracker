@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+  body { margin: 0; padding: 0; background: transparent; }
+
+  .ct-wrap {
+    font-family: 'DM Mono', monospace;
+    background: #0e0d0c;
+    border: 0.5px solid #2a2825;
+    border-radius: 12px;
+    padding: 1.25rem 1.25rem;
+    max-width: 240px;
+    margin: 0 0 0 1.5rem;
+    color: #c8c2b8;
+  }
+
+  .ct-header {
+    margin-bottom: 1rem;
+    border-bottom: 0.5px solid #2a2825;
+    padding-bottom: 0.75rem;
+  }
+
+  .ct-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 500;
+    color: #e8e0d4;
+    letter-spacing: 0.02em;
+    margin: 0 0 2px;
+  }
+
+  .ct-subtitle {
+    font-size: 9px;
+    color: #5a5650;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .ct-error {
+    font-size: 10px;
+    color: #8a5a4a;
+    text-align: center;
+    padding: 0.75rem 0;
+  }
+
+  .ct-empty {
+    font-size: 10px;
+    color: #4a4540;
+    text-align: center;
+    padding: 1.25rem 0;
+    font-style: italic;
+  }
+
+  .ct-card {
+    padding: 0.75rem 0;
+    border-bottom: 0.5px solid #1e1c1a;
+  }
+
+  .ct-card:last-child { border-bottom: none; }
+
+  .ct-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+
+  .ct-icon {
+    font-size: 16px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .ct-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #ddd5c8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+  }
+
+  .ct-dates {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 9px;
+    color: #5a5450;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+    padding-left: 24px;
+  }
+
+  .ct-status {
+    display: inline-block;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 0.5px solid;
+    margin-left: 24px;
+  }
+
+  .ct-status.conceptualizing { color: #c49a45; border-color: #4a3a18; background: #1c1508; }
+  .ct-status.sketching       { color: #4aadaa; border-color: #1a3e3d; background: #091818; }
+  .ct-status.coloring        { color: #5a9a62; border-color: #1e3c22; background: #0a160b; }
+  .ct-status.shading         { color: #8878c8; border-color: #2e2850; background: #100e1e; }
+  .ct-status.rendering       { color: #9a7a8a; border-color: #3a2a38; background: #1a0f1a; }
+  .ct-status.default         { color: #6a6460; border-color: #2a2825; background: #161412; }
+
+  .ct-footer {
+    margin-top: 0.85rem;
+    text-align: right;
+    font-size: 8px;
+    color: #3a3830;
+    letter-spacing: 0.08em;
+  }
+
+  .ct-loading {
+    text-align: center;
+    padding: 1.25rem 0;
+    font-size: 10px;
+    color: #4a4540;
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+
+<div class="ct-wrap" role="region" aria-label="Commission tracker">
+  <div class="ct-header">
+    <p class="ct-title">commissions</p>
+    <span class="ct-subtitle">current queue</span>
+  </div>
+  <div id="ct-list"><div class="ct-loading">loading...</div></div>
+  <div class="ct-footer">updated live from spreadsheet</div>
+</div>
+
+<script>
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnywI3Ojizyze1QIzKj2e4WOiE4EGWODDFOj-u1KmR2_l_Hp9hSqeTpHMouGqKAFjpTR6Gnxbw_gqW/pub?gid=0&single=true&output=csv";
+
+function isDone(val) {
+  if (!val) return false;
+  const v = val.toString().toLowerCase().trim();
+  return v === 'yes' || v === 'x' || v === 'true' || v === '1' || v === 'done';
+}
+
+function statusClass(s) {
+  if (!s) return 'default';
+  const v = s.toLowerCase().trim();
+  if (v.includes('concept')) return 'conceptualizing';
+  if (v.includes('sketch'))  return 'sketching';
+  if (v.includes('color'))   return 'coloring';
+  if (v.includes('shad'))    return 'shading';
+  if (v.includes('render'))  return 'rendering';
+  return 'default';
+}
+
+function fmt(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function render(commissions) {
+  const list = document.getElementById('ct-list');
+  const active = commissions.filter(c => !isDone(c.done)).slice(0, 3);
+  if (!active.length) {
+    list.innerHTML = '<p class="ct-empty">no active commissions.</p>';
+    return;
+  }
+  list.innerHTML = active.map(c => `
+    <div class="ct-card">
+      <div class="ct-top">
+        <span class="ct-icon" aria-hidden="true">${c.emoji || '✦'}</span>
+        <p class="ct-name">${c.name || 'Untitled'}</p>
+      </div>
+      <div class="ct-dates">
+        <span>▸ ${fmt(c.start)}</span>
+        <span>◂ ${fmt(c.end)}</span>
+      </div>
+      <span class="ct-status ${statusClass(c.status)}">${c.status || 'in progress'}</span>
+    </div>
+  `).join('');
+}
+
+function parseCSV(text) {
+  const rows = text.trim().split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g, '')));
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(h => h.toLowerCase());
+  return rows.slice(1)
+    .filter(r => r.some(c => c))
+    .map(r => ({
+      emoji:  r[headers.indexOf('emoji')]  || '',
+      name:   r[headers.indexOf('name')]   || '',
+      start:  r[headers.indexOf('start')]  || '',
+      end:    r[headers.indexOf('end')]    || '',
+      status: r[headers.indexOf('status')] || '',
+      done:   r[headers.indexOf('done')]   || ''
+    }));
+}
+
+fetch(SHEET_URL)
+  .then(r => { if (!r.ok) throw new Error(); return r.text(); })
+  .then(text => render(parseCSV(text)))
+  .catch(() => {
+    document.getElementById('ct-list').innerHTML =
+      '<p class="ct-error">could not load commissions.</p>';
+  });
+</script>
+
+</body>
+</html>
