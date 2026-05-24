@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Games — Whispers in Grey</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #40281D;
+    color: #DDD8B8;
+    font-family: 'DM Mono', monospace;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem 3rem 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .divider {
+    height: 0.5px;
+    background: #463730;
+    margin: 0 3rem;
+    flex-shrink: 0;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #DDD8B8;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    text-align: center;
+  }
+
+  nav a:hover { color: #FFF6E0; }
+
+  nav a.active {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 500;
+    color: #FFF6E0;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+
+  .scroll-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 2.5rem 3rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 2.25rem;
+    scrollbar-width: thin;
+    scrollbar-color: #463730 transparent;
+  }
+
+  .scroll-container::-webkit-scrollbar { height: 4px; }
+  .scroll-container::-webkit-scrollbar-track { background: transparent; }
+  .scroll-container::-webkit-scrollbar-thumb { background: #463730; border-radius: 2px; }
+
+  .polaroid {
+    flex-shrink: 0;
+    background: #204035;
+    border-radius: 4px;
+    padding: 0.85rem 0.85rem 1.4rem;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    width: 260px;
+  }
+
+  .polaroid:hover {
+    transform: translateY(-6px) rotate(0.5deg);
+    box-shadow: 0 14px 36px rgba(0,0,0,0.45);
+  }
+
+  .polaroid-img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    display: block;
+    background: #163028;
+  }
+
+  .polaroid-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: #DDD8B8;
+    letter-spacing: 0.04em;
+    margin-top: 0.75rem;
+    text-align: center;
+  }
+
+  .empty-state {
+    color: #463730;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="art.html">Art</a>
+    <a href="games.html" class="active">Games</a>
+    <a href="commissions.html">Commissions</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+</header>
+
+<div class="divider"></div>
+
+<div class="scroll-container" id="collections-row"></div>
+
+<script>
+  const DEFAULT_COLLECTIONS = [];
+
+  function loadCollections() {
+    const saved = localStorage.getItem('games_collections');
+    return saved ? JSON.parse(saved) : DEFAULT_COLLECTIONS;
+  }
+
+  function render() {
+    const collections = loadCollections();
+    const row = document.getElementById('collections-row');
+    if (!collections.length) {
+      row.innerHTML = '<p class="empty-state">No collections yet.</p>';
+      return;
+    }
+    row.innerHTML = collections.map(c => `
+      <a class="polaroid" href="${c.page || '#'}">
+        <img class="polaroid-img" src="${c.image || ''}" alt="${c.title}" onerror="this.style.background='#163028'">
+        <p class="polaroid-title">${c.title}</p>
+      </a>
+    `).join('');
+  }
+
+  render();
+</script>
+
+</body>
+</html>
