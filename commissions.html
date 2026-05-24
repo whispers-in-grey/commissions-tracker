@@ -1,0 +1,531 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commissions — Whispers in Grey</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #40281D;
+    color: #DDD8B8;
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    padding: 2rem 3rem 1.5rem;
+    flex-shrink: 0;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #DDD8B8;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    text-align: center;
+  }
+
+  nav a:hover { color: #FFF6E0; }
+
+  nav a.active {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 500;
+    color: #FFF6E0;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+
+  .header-divider {
+    height: 0.5px;
+    background: #463730;
+    margin: 0 3rem;
+    flex-shrink: 0;
+  }
+
+  /* MAIN CONTENT ROW */
+  .main-row {
+    display: flex;
+    gap: 1.25rem;
+    padding: 2rem 3rem;
+    flex: 1;
+    min-height: 0;
+    height: calc(100vh - 140px);
+  }
+
+  /* LEFT THIRD — tall single image */
+  .col-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .col-left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    display: block;
+    background: #463730;
+  }
+
+  /* MIDDLE THIRD — two stacked images */
+  .col-middle {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .col-middle img {
+    width: 100%;
+    flex: 1;
+    object-fit: cover;
+    border-radius: 6px;
+    display: block;
+    background: #463730;
+    min-height: 0;
+  }
+
+  /* RIGHT THIRD — commission tracker */
+  .col-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TRACKER */
+  .ct-wrap {
+    background: #204035;
+    border-radius: 8px;
+    padding: 1.25rem 1.25rem;
+    color: #DDD8B8;
+    font-family: 'DM Mono', monospace;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ct-header {
+    margin-bottom: 1rem;
+    border-bottom: 0.5px solid #2a5548;
+    padding-bottom: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .ct-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 500;
+    color: #FFF6E0;
+    letter-spacing: 0.02em;
+    margin: 0 0 2px;
+  }
+
+  .ct-subtitle {
+    font-size: 9px;
+    color: #2a5548;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .ct-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .ct-card {
+    padding: 0.75rem 0;
+    border-bottom: 0.5px solid #1a3028;
+  }
+
+  .ct-card:last-child { border-bottom: none; }
+
+  .ct-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+
+  .ct-icon {
+    font-size: 16px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .ct-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #DDD8B8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+  }
+
+  .ct-dates {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 9px;
+    color: #4a7a6a;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+    padding-left: 24px;
+  }
+
+  .ct-status {
+    display: inline-block;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 0.5px solid;
+    margin-left: 24px;
+  }
+
+  .ct-status.conceptualizing { color: #c49a45; border-color: #4a3a18; background: #1c1508; }
+  .ct-status.sketching       { color: #4aadaa; border-color: #1a3e3d; background: #091818; }
+  .ct-status.coloring        { color: #5a9a62; border-color: #1e3c22; background: #0a160b; }
+  .ct-status.shading         { color: #8878c8; border-color: #2e2850; background: #100e1e; }
+  .ct-status.rendering       { color: #9a7a8a; border-color: #3a2a38; background: #1a0f1a; }
+  .ct-status.default         { color: #4a7a6a; border-color: #2a5548; background: #163028; }
+
+  .ct-empty {
+    font-size: 10px;
+    color: #2a5548;
+    text-align: center;
+    padding: 1.25rem 0;
+    font-style: italic;
+  }
+
+  .ct-error {
+    font-size: 10px;
+    color: #8a5a4a;
+    text-align: center;
+    padding: 0.75rem 0;
+  }
+
+  .ct-footer {
+    margin-top: 0.85rem;
+    text-align: right;
+    font-size: 8px;
+    color: #2a5548;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+  }
+
+  .ct-loading {
+    text-align: center;
+    padding: 1.25rem 0;
+    font-size: 10px;
+    color: #2a5548;
+    letter-spacing: 0.1em;
+  }
+
+  /* FORM SECTION */
+  .form-section {
+    padding: 2rem 3rem 3rem;
+    border-top: 0.5px solid #463730;
+  }
+
+  .form-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 500;
+    color: #FFF6E0;
+    margin-bottom: 0.4rem;
+  }
+
+  .form-subtitle {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #5a4a40;
+    margin-bottom: 1.75rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    max-width: 860px;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .form-field.full { grid-column: 1 / -1; }
+
+  .form-field label {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8a7a70;
+  }
+
+  .form-field input,
+  .form-field textarea {
+    background: #463730;
+    border: 0.5px solid #5a4a40;
+    border-radius: 6px;
+    padding: 0.65rem 0.85rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #FFF6E0;
+    outline: none;
+    transition: border-color 0.2s ease;
+    resize: none;
+  }
+
+  .form-field input:focus,
+  .form-field textarea:focus { border-color: #DDD8B8; }
+
+  .form-field textarea { min-height: 100px; }
+
+  .form-submit {
+    margin-top: 1rem;
+    background: #204035;
+    border: 0.5px solid #2a5548;
+    border-radius: 6px;
+    padding: 0.65rem 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #DDD8B8;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .form-submit:hover { background: #2a5548; color: #FFF6E0; }
+
+  .form-message {
+    margin-top: 0.85rem;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    min-height: 16px;
+  }
+
+  .form-message.success { color: #5a9a62; }
+  .form-message.error   { color: #c87070; }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="art.html">Art</a>
+    <a href="games.html">Games</a>
+    <a href="commissions.html" class="active">Commissions</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+</header>
+
+<div class="header-divider"></div>
+
+<!-- MAIN ROW: images + tracker -->
+<div class="main-row">
+
+  <!-- LEFT: tall single image -->
+  <div class="col-left">
+    <img src="images/commissions-left.png" alt="Commission info">
+  </div>
+
+  <!-- MIDDLE: two stacked images -->
+  <div class="col-middle">
+    <img src="images/commissions-mid-top.png" alt="Commission prices top">
+    <img src="images/commissions-mid-bottom.png" alt="Commission prices bottom">
+  </div>
+
+  <!-- RIGHT: commission queue tracker -->
+  <div class="col-right">
+    <div class="ct-wrap">
+      <div class="ct-header">
+        <p class="ct-title">commissions</p>
+        <span class="ct-subtitle">current queue</span>
+      </div>
+      <div class="ct-list" id="ct-list">
+        <div class="ct-loading">loading...</div>
+      </div>
+      <div class="ct-footer">updated live from spreadsheet</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FORM SECTION -->
+<div class="form-section">
+  <h2 class="form-title">Request a Commission</h2>
+  <p class="form-subtitle">fill out the form below and I'll get back to you</p>
+
+  <div class="form-grid">
+    <div class="form-field">
+      <label>Name</label>
+      <input type="text" id="form-name" placeholder="Your name">
+    </div>
+    <div class="form-field">
+      <label>Email</label>
+      <input type="email" id="form-email" placeholder="your@email.com">
+    </div>
+    <div class="form-field full">
+      <label>Description</label>
+      <textarea id="form-description" placeholder="Describe what you'd like commissioned..."></textarea>
+    </div>
+  </div>
+
+  <button class="form-submit" onclick="submitForm()">Send Request</button>
+  <p class="form-message" id="form-message"></p>
+</div>
+
+<script>
+  // ============================================================
+  // COMMISSION TRACKER
+  // ============================================================
+  const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnywI3Ojizyze1QIzKj2e4WOiE4EGWODDFOj-u1KmR2_l_Hp9hSqeTpHMouGqKAFjpTR6Gnxbw_gqW/pub?gid=0&single=true&output=csv";
+
+  function isDone(val) {
+    if (!val) return false;
+    const v = val.toString().toLowerCase().trim();
+    return v === 'yes' || v === 'x' || v === 'true' || v === '1' || v === 'done';
+  }
+
+  function statusClass(s) {
+    if (!s) return 'default';
+    const v = s.toLowerCase().trim();
+    if (v.includes('concept')) return 'conceptualizing';
+    if (v.includes('sketch'))  return 'sketching';
+    if (v.includes('color'))   return 'coloring';
+    if (v.includes('shad'))    return 'shading';
+    if (v.includes('render'))  return 'rendering';
+    return 'default';
+  }
+
+  function fmt(dateStr) {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    if (isNaN(d)) return dateStr;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function renderTracker(commissions) {
+    const list = document.getElementById('ct-list');
+    const active = commissions.filter(c => !isDone(c.done)).slice(0, 3);
+    if (!active.length) {
+      list.innerHTML = '<p class="ct-empty">no active commissions right now.</p>';
+      return;
+    }
+    list.innerHTML = active.map(c => `
+      <div class="ct-card">
+        <div class="ct-top">
+          <span class="ct-icon">${c.emoji || '✦'}</span>
+          <p class="ct-name">${c.name || 'Untitled'}</p>
+        </div>
+        <div class="ct-dates">
+          <span>▸ ${fmt(c.start)}</span>
+          <span>◂ ${fmt(c.end)}</span>
+        </div>
+        <span class="ct-status ${statusClass(c.status)}">${c.status || 'in progress'}</span>
+      </div>
+    `).join('');
+  }
+
+  function parseCSV(text) {
+    const rows = text.trim().split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g, '')));
+    if (rows.length < 2) return [];
+    const headers = rows[0].map(h => h.toLowerCase());
+    return rows.slice(1)
+      .filter(r => r.some(c => c))
+      .map(r => ({
+        emoji:  r[headers.indexOf('emoji')]  || '',
+        name:   r[headers.indexOf('name')]   || '',
+        start:  r[headers.indexOf('start')]  || '',
+        end:    r[headers.indexOf('end')]    || '',
+        status: r[headers.indexOf('status')] || '',
+        done:   r[headers.indexOf('done')]   || ''
+      }));
+  }
+
+  fetch(SHEET_URL)
+    .then(r => { if (!r.ok) throw new Error(); return r.text(); })
+    .then(text => renderTracker(parseCSV(text)))
+    .catch(() => {
+      document.getElementById('ct-list').innerHTML =
+        '<p class="ct-error">could not load commissions.</p>';
+    });
+
+  // ============================================================
+  // FORM SUBMISSION
+  // ============================================================
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPuS7Qoz4fM-KCjZtYEfMfSEuRIrBkUiXvlgAIgqxR7Hprd1lvm1ABfg8XRbJMSDIZ/exec";
+
+  function submitForm() {
+    const name    = document.getElementById('form-name').value.trim();
+    const email   = document.getElementById('form-email').value.trim();
+    const desc    = document.getElementById('form-description').value.trim();
+    const msg     = document.getElementById('form-message');
+
+    if (!name || !email || !desc) {
+      msg.textContent = 'Please fill out all fields.';
+      msg.className = 'form-message error';
+      return;
+    }
+
+    const btn = document.querySelector('.form-submit');
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, description: desc })
+    })
+    .then(() => {
+      msg.textContent = 'Request sent! I\'ll be in touch soon.';
+      msg.className = 'form-message success';
+      document.getElementById('form-name').value = '';
+      document.getElementById('form-email').value = '';
+      document.getElementById('form-description').value = '';
+      btn.textContent = 'Send Request';
+      btn.disabled = false;
+    })
+    .catch(() => {
+      msg.textContent = 'Something went wrong. Please try again.';
+      msg.className = 'form-message error';
+      btn.textContent = 'Send Request';
+      btn.disabled = false;
+    });
+  }
+</script>
+
+</body>
+</html>
