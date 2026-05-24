@@ -16,6 +16,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
     overflow-x: hidden;
   }
 
@@ -63,14 +64,12 @@
   }
 
   /* MAIN CONTENT ROW */
-.main-row {
+  .main-row {
     display: flex;
     gap: 1.25rem;
     padding: 2rem 3rem;
-    flex: 1;
-    min-height: 0;
-    height: calc(200vh - 140px);
-    overflow-y: visible;
+    min-height: 600px;
+    height: calc(100vh - 80px);
   }
 
   /* LEFT THIRD — tall single image */
