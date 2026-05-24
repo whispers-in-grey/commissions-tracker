@@ -1,0 +1,557 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Whispers in Grey</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #40281D;
+    color: #DDD8B8;
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+  }
+
+  #login-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 1.5rem;
+  }
+
+  .login-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: #FFF6E0;
+  }
+
+  .login-sub {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #463730;
+  }
+
+  .login-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 260px;
+  }
+
+  input[type="password"], input[type="text"] {
+    background: #463730;
+    border: 0.5px solid #5a4a40;
+    border-radius: 6px;
+    padding: 0.6rem 0.85rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: #FFF6E0;
+    outline: none;
+    width: 100%;
+  }
+
+  input[type="password"]:focus, input[type="text"]:focus { border-color: #DDD8B8; }
+
+  .btn {
+    background: #204035;
+    border: 0.5px solid #2a5548;
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #DDD8B8;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    width: 100%;
+  }
+
+  .btn:hover { background: #2a5548; color: #FFF6E0; }
+
+  .btn-danger { background: #3a1a1a; border-color: #5a2a2a; color: #c8a0a0; }
+  .btn-danger:hover { background: #5a2a2a; color: #FFF6E0; }
+
+  .btn-small { width: auto; padding: 0.35rem 0.75rem; font-size: 9px; }
+
+  .btn-generate {
+    background: #463730;
+    border-color: #5a4a40;
+    color: #FFF6E0;
+    font-size: 11px;
+    padding: 0.75rem 1rem;
+  }
+  .btn-generate:hover { background: #5a4a40; }
+
+  .login-error {
+    font-size: 10px;
+    color: #c87070;
+    text-align: center;
+    letter-spacing: 0.08em;
+    min-height: 16px;
+  }
+
+  #admin-panel { display: none; padding: 2.5rem 3rem; }
+
+  .admin-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 0.5px solid #463730;
+  }
+
+  .admin-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: #FFF6E0;
+  }
+
+  .admin-sub {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #463730;
+  }
+
+  .section { margin-bottom: 2.5rem; }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 500;
+    color: #FFF6E0;
+    margin-bottom: 1rem;
+  }
+
+  .collection-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .collection-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #463730;
+    border-radius: 6px;
+    padding: 0.6rem 0.85rem;
+    border: 0.5px solid #5a4a40;
+  }
+
+  .drag-handle {
+    color: #5a4a40;
+    cursor: grab;
+    font-size: 14px;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .drag-handle:active { cursor: grabbing; }
+
+  .item-fields { display: flex; gap: 0.5rem; flex: 1; }
+
+  .item-fields input {
+    flex: 1;
+    background: #40281D;
+    border: 0.5px solid #5a4a40;
+    border-radius: 4px;
+    padding: 0.4rem 0.6rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #FFF6E0;
+    outline: none;
+  }
+  .item-fields input:focus { border-color: #DDD8B8; }
+
+  .add-row { display: flex; gap: 0.5rem; align-items: center; }
+  .add-row input { flex: 1; }
+
+  .divider { height: 0.5px; background: #463730; margin: 2rem 0; }
+
+  .generate-section {
+    background: #463730;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 0.5px solid #5a4a40;
+  }
+
+  .generate-title {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #DDD8B8;
+    margin-bottom: 0.5rem;
+  }
+
+  .generate-desc {
+    font-size: 10px;
+    color: #8a7a70;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+
+  .generate-buttons { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+  .code-output {
+    display: none;
+    margin-top: 1rem;
+    background: #40281D;
+    border-radius: 6px;
+    border: 0.5px solid #5a4a40;
+    padding: 1rem;
+  }
+
+  .code-output textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #DDD8B8;
+    resize: vertical;
+    outline: none;
+    min-height: 160px;
+    line-height: 1.5;
+  }
+
+  .code-label {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #5a4a40;
+    margin-bottom: 0.5rem;
+  }
+
+  .copied-msg {
+    font-size: 9px;
+    color: #5a9a62;
+    letter-spacing: 0.1em;
+    display: none;
+    margin-left: 0.5rem;
+  }
+
+  .collection-item.dragging { opacity: 0.4; }
+
+  .preview-row {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .preview-card {
+    flex-shrink: 0;
+    background: #204035;
+    border-radius: 4px;
+    padding: 0.6rem 0.6rem 1rem;
+    width: 120px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .preview-card img {
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    background: #163028;
+    display: block;
+  }
+
+  .preview-card p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    color: #DDD8B8;
+    text-align: center;
+    margin-top: 0.4rem;
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <p class="login-sub">Whispers in Grey</p>
+  <h1 class="login-title">Admin Access</h1>
+  <div class="login-box">
+    <input type="password" id="pw-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')tryLogin()">
+    <button class="btn" onclick="tryLogin()">Enter</button>
+    <p class="login-error" id="login-error"></p>
+  </div>
+</div>
+
+<div id="admin-panel">
+  <div class="admin-header">
+    <div>
+      <h1 class="admin-title">Admin Panel</h1>
+      <p class="admin-sub">Whispers in Grey — Collection Manager</p>
+    </div>
+    <button class="btn btn-small" onclick="logout()">Log out</button>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Art Collections</h2>
+    <div class="preview-row" id="art-preview"></div>
+    <div class="collection-list" id="art-list"></div>
+    <div class="add-row">
+      <input type="text" id="art-title-new" placeholder="Collection title">
+      <input type="text" id="art-image-new" placeholder="Image path (e.g. images/cover.png)">
+      <input type="text" id="art-page-new" placeholder="Page link (e.g. portraits.html)">
+      <button class="btn btn-small" onclick="addItem('art')">+ Add</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section">
+    <h2 class="section-title">Games Collections</h2>
+    <div class="preview-row" id="games-preview"></div>
+    <div class="collection-list" id="games-list"></div>
+    <div class="add-row">
+      <input type="text" id="games-title-new" placeholder="Collection title">
+      <input type="text" id="games-image-new" placeholder="Image path (e.g. images/cover.png)">
+      <input type="text" id="games-page-new" placeholder="Page link (e.g. my-game.html)">
+      <button class="btn btn-small" onclick="addItem('games')">+ Add</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="generate-section">
+    <p class="generate-title">Generate Updated Code</p>
+    <p class="generate-desc">When you're done editing, generate the updated code for each page. Copy it and replace the matching file in your GitHub repository.</p>
+    <div class="generate-buttons">
+      <button class="btn btn-generate" onclick="generateCode('art')">Generate digital-art.html</button>
+      <button class="btn btn-generate" onclick="generateCode('games')">Generate games.html</button>
+    </div>
+    <div class="code-output" id="code-output">
+      <p class="code-label" id="code-label"></p>
+      <textarea id="code-textarea" readonly></textarea>
+      <div style="display:flex;align-items:center;margin-top:0.5rem;">
+        <button class="btn btn-small" onclick="copyCode()">Copy to clipboard</button>
+        <span class="copied-msg" id="copied-msg">Copied!</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PASSWORD = "password";
+
+function tryLogin() {
+  const val = document.getElementById('pw-input').value;
+  if (val === PASSWORD) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    renderLists();
+  } else {
+    document.getElementById('login-error').textContent = 'Incorrect password.';
+    document.getElementById('pw-input').value = '';
+  }
+}
+
+function logout() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('pw-input').value = '';
+}
+
+function getCollections(type) {
+  const saved = localStorage.getItem(type + '_collections');
+  return saved ? JSON.parse(saved) : [];
+}
+
+function saveCollections(type, data) {
+  localStorage.setItem(type + '_collections', JSON.stringify(data));
+}
+
+function renderLists() {
+  renderList('art');
+  renderList('games');
+}
+
+function renderList(type) {
+  const collections = getCollections(type);
+  const list = document.getElementById(type + '-list');
+  const preview = document.getElementById(type + '-preview');
+
+  if (!collections.length) {
+    preview.innerHTML = '';
+  } else {
+    preview.innerHTML = collections.map(c => `
+      <div class="preview-card">
+        <img src="${c.image || ''}" alt="${c.title}" onerror="this.style.background='#163028'">
+        <p>${c.title}</p>
+      </div>
+    `).join('');
+  }
+
+  if (!collections.length) {
+    list.innerHTML = '<p style="font-size:10px;color:#5a4a40;letter-spacing:0.1em;text-transform:uppercase;padding:0.5rem 0;">No collections yet — add one below.</p>';
+    return;
+  }
+  list.innerHTML = collections.map((c, i) => `
+    <div class="collection-item" draggable="true" data-index="${i}" data-type="${type}"
+      ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event, '${type}')">
+      <span class="drag-handle">⠿</span>
+      <div class="item-fields">
+        <input type="text" value="${c.title}" placeholder="Title" onchange="updateItem('${type}', ${i}, 'title', this.value)">
+        <input type="text" value="${c.image}" placeholder="Image path" onchange="updateItem('${type}', ${i}, 'image', this.value)">
+        <input type="text" value="${c.page}" placeholder="Page link" onchange="updateItem('${type}', ${i}, 'page', this.value)">
+      </div>
+      <button class="btn btn-small btn-danger" onclick="removeItem('${type}', ${i})">Remove</button>
+    </div>
+  `).join('');
+}
+
+function addItem(type) {
+  const title = document.getElementById(type + '-title-new').value.trim();
+  const image = document.getElementById(type + '-image-new').value.trim();
+  const page  = document.getElementById(type + '-page-new').value.trim();
+  if (!title) return;
+  const collections = getCollections(type);
+  collections.push({ title, image, page });
+  saveCollections(type, collections);
+  document.getElementById(type + '-title-new').value = '';
+  document.getElementById(type + '-image-new').value = '';
+  document.getElementById(type + '-page-new').value = '';
+  renderList(type);
+}
+
+function removeItem(type, index) {
+  const collections = getCollections(type);
+  collections.splice(index, 1);
+  saveCollections(type, collections);
+  renderList(type);
+}
+
+function updateItem(type, index, field, value) {
+  const collections = getCollections(type);
+  collections[index][field] = value;
+  saveCollections(type, collections);
+  renderList(type);
+}
+
+let dragSrcIndex = null;
+
+function dragStart(e) {
+  dragSrcIndex = parseInt(e.currentTarget.dataset.index);
+  e.currentTarget.classList.add('dragging');
+}
+
+function dragOver(e) { e.preventDefault(); }
+
+function drop(e, type) {
+  e.preventDefault();
+  const targetIndex = parseInt(e.currentTarget.dataset.index);
+  if (dragSrcIndex === null || dragSrcIndex === targetIndex) return;
+  const collections = getCollections(type);
+  const moved = collections.splice(dragSrcIndex, 1)[0];
+  collections.splice(targetIndex, 0, moved);
+  saveCollections(type, collections);
+  dragSrcIndex = null;
+  renderList(type);
+}
+
+function generateCode(type) {
+  const collections = getCollections(type);
+  const isArt = type === 'art';
+  const pageTitle = isArt ? 'Art' : 'Games';
+  const fileName  = isArt ? 'digital-art.html' : 'games.html';
+  const storageKey = type + '_collections';
+  const otherNav = isArt
+    ? `<a href="games.html">Games</a>`
+    : `<a href="digital-art.html">Art</a>`;
+  const collectionsJSON = JSON.stringify(collections, null, 2);
+
+  const code = `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${pageTitle} — Whispers in Grey</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #40281D; color: #DDD8B8; font-family: 'DM Mono', monospace; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 2rem 3rem 1.5rem; flex-shrink: 0; }
+  .back { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #DDD8B8; text-decoration: none; transition: color 0.2s ease; }
+  .back:hover { color: #FFF6E0; }
+  .page-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 500; color: #FFF6E0; letter-spacing: 0.02em; }
+  nav { display: flex; gap: 2rem; }
+  nav a { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #DDD8B8; text-decoration: none; transition: color 0.2s ease; }
+  nav a:hover { color: #FFF6E0; }
+  .divider { height: 0.5px; background: #463730; margin: 0 3rem; flex-shrink: 0; }
+  .scroll-container { flex: 1; display: flex; align-items: center; padding: 2.5rem 3rem; overflow-x: auto; overflow-y: hidden; gap: 2.25rem; scrollbar-width: thin; scrollbar-color: #463730 transparent; }
+  .scroll-container::-webkit-scrollbar { height: 4px; }
+  .scroll-container::-webkit-scrollbar-track { background: transparent; }
+  .scroll-container::-webkit-scrollbar-thumb { background: #463730; border-radius: 2px; }
+  .polaroid { flex-shrink: 0; background: #204035; border-radius: 4px; padding: 0.85rem 0.85rem 1.4rem; box-shadow: 0 6px 24px rgba(0,0,0,0.35); cursor: pointer; text-decoration: none; display: block; transition: transform 0.25s ease, box-shadow 0.25s ease; width: 260px; }
+  .polaroid:hover { transform: translateY(-6px) rotate(0.5deg); box-shadow: 0 14px 36px rgba(0,0,0,0.45); }
+  .polaroid-img { width: 100%; height: 300px; object-fit: cover; display: block; background: #163028; }
+  .polaroid-title { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 500; color: #DDD8B8; letter-spacing: 0.04em; margin-top: 0.75rem; text-align: center; }
+  .empty-state { color: #463730; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html" class="back">← Home</a>
+  <h1 class="page-title">${pageTitle}</h1>
+  <nav>
+    ${otherNav}
+    <a href="commissions.html">Commissions</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+</header>
+<div class="divider"></div>
+<div class="scroll-container" id="collections-row"></div>
+<script>
+  const DEFAULT_COLLECTIONS = ${collectionsJSON};
+  function loadCollections() {
+    const saved = localStorage.getItem('${storageKey}');
+    return saved ? JSON.parse(saved) : DEFAULT_COLLECTIONS;
+  }
+  function render() {
+    const collections = loadCollections();
+    const row = document.getElementById('collections-row');
+    if (!collections.length) { row.innerHTML = '<p class="empty-state">No collections yet.</p>'; return; }
+    row.innerHTML = collections.map(c => \`
+      <a class="polaroid" href="\${c.page || '#'}">
+        <img class="polaroid-img" src="\${c.image || ''}" alt="\${c.title}" onerror="this.style.background='#163028'">
+        <p class="polaroid-title">\${c.title}</p>
+      </a>
+    \`).join('');
+  }
+  render();
+<\/script>
+</body>
+</html>`;
+
+  document.getElementById('code-label').textContent = fileName;
+  document.getElementById('code-textarea').value = code;
+  document.getElementById('code-output').style.display = 'block';
+  document.getElementById('copied-msg').style.display = 'none';
+}
+
+function copyCode() {
+  const ta = document.getElementById('code-textarea');
+  ta.select();
+  document.execCommand('copy');
+  const msg = document.getElementById('copied-msg');
+  msg.style.display = 'inline';
+  setTimeout(() => msg.style.display = 'none', 2000);
+}
+</script>
+
+</body>
+</html>
