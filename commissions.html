@@ -63,7 +63,6 @@
     flex-shrink: 0;
   }
 
-  /* MAIN CONTENT ROW */
   .main-row {
     display: flex;
     gap: 1.25rem;
@@ -72,7 +71,6 @@
     height: calc(100vh - 80px);
   }
 
-  /* LEFT THIRD — tall single image */
   .col-left {
     flex: 1;
     display: flex;
@@ -88,7 +86,6 @@
     background: #463730;
   }
 
-  /* MIDDLE THIRD — two stacked images */
   .col-middle {
     flex: 1;
     display: flex;
@@ -106,14 +103,12 @@
     min-height: 0;
   }
 
-  /* RIGHT THIRD — commission tracker */
   .col-right {
     flex: 1;
     display: flex;
     flex-direction: column;
   }
 
-  /* TRACKER */
   .ct-wrap {
     background: #204035;
     border-radius: 8px;
@@ -166,7 +161,7 @@
   .ct-slot:last-child { border-bottom: none; }
 
   .ct-slot-empty {
-    font-size: 9px;
+    font-size: 11px;
     color: #2a5548;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -182,14 +177,14 @@
   }
 
   .ct-icon {
-    font-size: 16px;
+    font-size: 20px;
     line-height: 1;
     flex-shrink: 0;
   }
 
   .ct-name {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 500;
     color: #DDD8B8;
     white-space: nowrap;
@@ -201,31 +196,31 @@
   .ct-dates {
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    font-size: 9px;
+    gap: 3px;
+    font-size: 12px;
     color: #4a7a6a;
     letter-spacing: 0.06em;
-    margin-bottom: 6px;
-    padding-left: 24px;
+    margin-bottom: 8px;
+    padding-left: 28px;
   }
 
   .ct-date-label {
     color: #2a5548;
-    font-size: 8px;
+    font-size: 10px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin-right: 4px;
+    margin-right: 6px;
   }
 
   .ct-status {
     display: inline-block;
-    font-size: 8px;
+    font-size: 10px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    padding: 2px 7px;
+    padding: 3px 9px;
     border-radius: 3px;
     border: 0.5px solid;
-    margin-left: 24px;
+    margin-left: 28px;
   }
 
   .ct-status.conceptualizing { color: #c49a45; border-color: #4a3a18; background: #1c1508; }
@@ -259,7 +254,6 @@
     letter-spacing: 0.1em;
   }
 
-  /* FORM SECTION */
   .form-section {
     padding: 2rem 3rem 3rem;
     border-top: 0.5px solid #463730;
@@ -364,21 +358,17 @@
 
 <div class="header-divider"></div>
 
-<!-- MAIN ROW: images + tracker -->
 <div class="main-row">
 
-  <!-- LEFT: tall single image -->
   <div class="col-left">
     <img src="images/commissions-left.png" alt="Commission info">
   </div>
 
-  <!-- MIDDLE: two stacked images -->
   <div class="col-middle">
     <img src="images/commissions-mid-top.png" alt="Commission prices top">
     <img src="images/commissions-mid-bottom.png" alt="Commission prices bottom">
   </div>
 
-  <!-- RIGHT: commission queue tracker -->
   <div class="col-right">
     <div class="ct-wrap">
       <div class="ct-header">
@@ -394,7 +384,6 @@
 
 </div>
 
-<!-- FORM SECTION -->
 <div class="form-section">
   <h2 class="form-title">Request a Commission</h2>
   <p class="form-subtitle">fill out the form below and I'll get back to you</p>
@@ -448,8 +437,6 @@
   function renderTracker(commissions) {
     const list = document.getElementById('ct-list');
     const active = commissions.filter(c => !isDone(c.done));
-
-    // Always render exactly 3 slots
     const slots = [0, 1, 2].map(i => active[i] || null);
 
     list.innerHTML = slots.map(c => {
