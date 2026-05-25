@@ -152,15 +152,27 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+  }
+
+  .ct-slot {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
-  }
-
-  .ct-card {
     padding: 0.75rem 0;
-    border-bottom: 0.5px solid #1a3028;
+    border-bottom: 0.5px solid #2a5548;
   }
 
-  .ct-card:last-child { border-bottom: none; }
+  .ct-slot:last-child { border-bottom: none; }
+
+  .ct-slot-empty {
+    font-size: 9px;
+    color: #2a5548;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: center;
+    font-style: italic;
+  }
 
   .ct-top {
     display: flex;
@@ -197,6 +209,14 @@
     padding-left: 24px;
   }
 
+  .ct-date-label {
+    color: #2a5548;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-right: 4px;
+  }
+
   .ct-status {
     display: inline-block;
     font-size: 8px;
@@ -214,14 +234,6 @@
   .ct-status.shading         { color: #8878c8; border-color: #2e2850; background: #100e1e; }
   .ct-status.rendering       { color: #9a7a8a; border-color: #3a2a38; background: #1a0f1a; }
   .ct-status.default         { color: #4a7a6a; border-color: #2a5548; background: #163028; }
-
-  .ct-empty {
-    font-size: 10px;
-    color: #2a5548;
-    text-align: center;
-    padding: 1.25rem 0;
-    font-style: italic;
-  }
 
   .ct-error {
     font-size: 10px;
@@ -407,9 +419,6 @@
 </div>
 
 <script>
-  // ============================================================
-  // COMMISSION TRACKER
-  // ============================================================
   const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnywI3Ojizyze1QIzKj2e4WOiE4EGWODDFOj-u1KmR2_l_Hp9hSqeTpHMouGqKAFjpTR6Gnxbw_gqW/pub?gid=0&single=true&output=csv";
 
   function isDone(val) {
@@ -438,24 +447,29 @@
 
   function renderTracker(commissions) {
     const list = document.getElementById('ct-list');
-    const active = commissions.filter(c => !isDone(c.done)).slice(0, 3);
-    if (!active.length) {
-      list.innerHTML = '<p class="ct-empty">no active commissions right now.</p>';
-      return;
-    }
-    list.innerHTML = active.map(c => `
-      <div class="ct-card">
-        <div class="ct-top">
-          <span class="ct-icon">${c.emoji || '✦'}</span>
-          <p class="ct-name">${c.name || 'Untitled'}</p>
+    const active = commissions.filter(c => !isDone(c.done));
+
+    // Always render exactly 3 slots
+    const slots = [0, 1, 2].map(i => active[i] || null);
+
+    list.innerHTML = slots.map(c => {
+      if (!c) {
+        return `<div class="ct-slot"><p class="ct-slot-empty">slot empty</p></div>`;
+      }
+      return `
+        <div class="ct-slot">
+          <div class="ct-top">
+            <span class="ct-icon">${c.emoji || '✦'}</span>
+            <p class="ct-name">${c.name || 'Untitled'}</p>
+          </div>
+          <div class="ct-dates">
+            <span><span class="ct-date-label">start</span>${fmt(c.start)}</span>
+            <span><span class="ct-date-label">est. end</span>${fmt(c.end)}</span>
+          </div>
+          <span class="ct-status ${statusClass(c.status)}">${c.status || 'in progress'}</span>
         </div>
-        <div class="ct-dates">
-          <span>▸ ${fmt(c.start)}</span>
-          <span>◂ ${fmt(c.end)}</span>
-        </div>
-        <span class="ct-status ${statusClass(c.status)}">${c.status || 'in progress'}</span>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 
   function parseCSV(text) {
@@ -482,16 +496,13 @@
         '<p class="ct-error">could not load commissions.</p>';
     });
 
-  // ============================================================
-  // FORM SUBMISSION
-  // ============================================================
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPuS7Qoz4fM-KCjZtYEfMfSEuRIrBkUiXvlgAIgqxR7Hprd1lvm1ABfg8XRbJMSDIZ/exec";
 
   function submitForm() {
-    const name    = document.getElementById('form-name').value.trim();
-    const email   = document.getElementById('form-email').value.trim();
-    const desc    = document.getElementById('form-description').value.trim();
-    const msg     = document.getElementById('form-message');
+    const name  = document.getElementById('form-name').value.trim();
+    const email = document.getElementById('form-email').value.trim();
+    const desc  = document.getElementById('form-description').value.trim();
+    const msg   = document.getElementById('form-message');
 
     if (!name || !email || !desc) {
       msg.textContent = 'Please fill out all fields.';
@@ -510,7 +521,7 @@
       body: JSON.stringify({ name, email, description: desc })
     })
     .then(() => {
-      msg.textContent = 'Request sent! I\'ll be in touch soon.';
+      msg.textContent = "Request sent! I'll be in touch soon.";
       msg.className = 'form-message success';
       document.getElementById('form-name').value = '';
       document.getElementById('form-email').value = '';
